@@ -1,69 +1,94 @@
+//
+//  ContentView.swift
+//  Memorize
+//
+//  Created by Class Demo on 5/10/2566 BE.
+//
+
 import SwiftUI
 
+let themes: [Theme] = [
+    Theme(name: "Halloween", emojis: ["👻", "🎃", "🕷️", "👹"], symbol: "moon"),
+    Theme(name: "Animals", emojis: ["🐶", "🐱", "🐭", "🦊"], symbol: "cat"),
+    Theme(name: "Sports", emojis: ["⚽️", "🏀", "🏈", "⚾️"], symbol: "soccerball")
+]
+
+
 struct ContentView: View {
-    let themes: [EmojiTheme] = [
-        EmojiTheme(name: "Halloween", emojis: ["👻", "🎃", "🕷️", "👹", "💀"]),
-        EmojiTheme(name: "Animals", emojis: ["🦁", "🐯", "🐶", "🐱", "🐭", "🦊"]),
-        EmojiTheme(name: "Sports", emojis: ["⚽️", "🏀", "🏈", "⚾️"])
-    ]
     
-    @State var currentTheme: EmojiTheme
-    @State var cardStates: [Bool]
-    
-    init() {
-        let defaultTheme = themes.first!
-        _currentTheme = State(initialValue: defaultTheme)
-        _cardStates = State(initialValue: Array(repeating: true, count: defaultTheme.emojis.count * 2))
-    }
+    @State private var currentTheme: Theme = themes[0].randomizedEmojis()
     
     var body: some View {
         VStack {
             Text("Memorize")
-            
+                .font(.largeTitle)
+                .foregroundColor(.purple)
             ScrollView {
                 cards
             }
-            Spacer()
+            
             HStack {
                 ForEach(themes, id: \.name) { theme in
-                    Button(theme.name) {
-                        currentTheme = EmojiTheme(name: theme.name, emojis: theme.emojis.shuffled())
-                        cardStates = Array(repeating: true, count: theme.emojis.count * 2)
+                    Button(action: {
+                        self.currentTheme = theme.randomizedEmojis()
+                    }) {
+                        HStack {
+                            Image(systemName: theme.symbol) // ใช้ SF Symbol ที่ต้องการ
+                                .font(.title)
+                            Text(theme.name)
+                                .font(.caption)
+                        }
                     }
-                    .padding()
+                    .padding(.horizontal, 8)  // ปรับ padding แนวนอน
+                    .padding(.vertical, 4)    // ปรับ padding แนวตั้ง
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(8)
+                    
                 }
             }
+            
+            Spacer()
         }
         .padding()
     }
     
     var cards: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            ForEach(0..<(currentTheme.emojis.count * 2), id: \.self) { index in
-                let emoji = currentTheme.emojis[index / 2]
-                CardView(content: emoji, isFaceUp: cardStates[index]) {
-                    cardStates[index].toggle()
-                }
-                .aspectRatio(2/3, contentMode: .fit)
+            ForEach(currentTheme.emojis.indices, id: \.self) { index in
+                CardView(content: currentTheme.emojis[index])
+                    .aspectRatio(2/3, contentMode: .fit)
             }
+            
         }
         .foregroundColor(.orange)
     }
+    
 }
 
-struct EmojiTheme: Identifiable {
-    var id: String { name }
+struct Theme {
     let name: String
     var emojis: [String]
+    let symbol: String // เพิ่มตัวแปรสำหรับ SF Symbol
+    
+    func randomizedEmojis() -> Theme {
+        return Theme(name: self.name, emojis: self.emojis.doubled().shuffled(), symbol: self.symbol)
+    }
 }
+
+
+extension Array {
+    func doubled() -> [Element] {
+        print(self + self)
+        return self + self
+    }
+}
+
+
 
 struct CardView: View {
     let content: String
-    let isFaceUp: Bool
-    let onCardTap: () -> Void
+    @State var isFaceUp = true
     
     var body: some View {
         ZStack {
@@ -77,13 +102,15 @@ struct CardView: View {
             base.opacity(isFaceUp ? 0 : 1)
         }
         .onTapGesture {
-            onCardTap()
+            isFaceUp.toggle()
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+
+
+
+
+#Preview {
+    ContentView()
 }
