@@ -6,4 +6,7 @@ SF333 Project Memorize
 - พัทธพล อภิชาติโชติกุล 6410742065
   
 
-https://github.com/panuwat-oat/memorygame/assets/85662757/8dfe407b-071b-4661-86d5-58839766c53b
+
+
+https://github.com/panuwat-oat/memorygame/assets/85662757/093461b9-f3bb-4bf1-8f13-dfa4a58c0195
+
